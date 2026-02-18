@@ -1,0 +1,116 @@
+spring:
+  application:
+    name: StockMenu
+
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  # =============================================================
+  #  Database & Flyway
+  # =============================================================
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/mydatabase}
+    username: ${DB_USER:myuser}
+    password: ${DB_PASSWORD:secret}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+
+  flyway:
+    enabled: true
+    url: ${spring.datasource.url}
+    user: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  # =============================================================
+  #  JPA / Hibernate
+  # =============================================================
+  jpa:
+    open-in-view: false
+    generate-ddl: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+        default_schema: public
+      org.hibernate.envers:
+        revision_field_name: audit_id
+        revision_type_field_name: audit_type
+        store_data_at_delete: true
+
+  # =============================================================
+  #  Server & Security
+  # =============================================================
+  web:
+    error:
+      include-message: always
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# =============================================================
+# JWT
+# =============================================================
+api:
+  security:
+    token:
+      secret: ${TOKEN_SECRET:minha-chave-secreta-de-dev-pelo-menos-32-caracteres}
+
+# =============================================================
+# Observability (Actuator & Prometheus)
+# =============================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,prometheus,metrics"
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# =============================================================
+# Swagger / OpenAPI
+# =============================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+    display-request-duration: true
+
+swagger:
+  server:
+    url: http://localhost:8080/api
+
+# =============================================================
+# Logging (SQL Hibernate)
+# =============================================================
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+# =============================================================
+# External Services (Placeholders)
+# =============================================================
+payment:
+  gateway:
+    key: ${PAYMENT_GATEWAY_API_KEY:dummy-key}
+    webhook:
+      secret: ${PAYMENT_GATEWAY_WEBHOOK_SECRET:dummy-secret}
