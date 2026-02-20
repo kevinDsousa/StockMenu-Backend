@@ -1,9 +1,9 @@
 package com.main.controller.impl;
 
-import com.main.controller.CompanyController;
+import com.main.controller.ProductController;
 import com.main.infrastructure.generic.model.dto.ResponseDTO;
-import com.main.model.dto.response.CompanyResponseDTO;
-import com.main.service.CompanyService;
+import com.main.model.dto.response.ProductResponseDTO;
+import com.main.service.ProductService;
 import com.main.utils.constants.MessageCommonsConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,19 +17,19 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "company")
+@RequestMapping(value = "product")
 @RequiredArgsConstructor
-public class DefaultCompanyController implements CompanyController {
+public class DefaultProductController implements ProductController {
 
-    private final CompanyService service;
+    private final ProductService service;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<CompanyResponseDTO>> findById(@PathVariable UUID id) {
+    public ResponseEntity<ResponseDTO<ProductResponseDTO>> findById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.fromData(service.findById(id), HttpStatus.OK, MessageCommonsConstants.FIND_ID_SUCCESS.getValue()));
     }
 
     @GetMapping
-    public ResponseEntity<ResponseDTO<List<CompanyResponseDTO>>> findAll() {
+    public ResponseEntity<ResponseDTO<List<ProductResponseDTO>>> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.fromData(service.findAll(), HttpStatus.OK, MessageCommonsConstants.FIND_ALL_SUCCESS.getValue()));
     }
 }

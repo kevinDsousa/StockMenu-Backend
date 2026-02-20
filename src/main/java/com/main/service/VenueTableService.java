@@ -1,4 +1,8 @@
 package com.main.service;
 
-public interface VenueTableService {
+import com.main.infrastructure.generic.service.GenericService;
+import com.main.model.dto.request.VenueTableRequestDTO;
+import com.main.model.dto.response.VenueTableResponseDTO;
+
+public interface VenueTableService extends GenericService<VenueTableRequestDTO, VenueTableResponseDTO> {
 }

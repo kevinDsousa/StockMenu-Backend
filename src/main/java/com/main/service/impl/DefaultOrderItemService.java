@@ -10,9 +10,9 @@ import com.main.service.OrderItemService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DefaultOrdemItemService extends DefaultGenericService<OrderItem, OrderItemRequestDTO, OrderItemResponseDTO> implements OrderItemService {
+public class DefaultOrderItemService extends DefaultGenericService<OrderItem, OrderItemRequestDTO, OrderItemResponseDTO> implements OrderItemService {
 
-    public DefaultOrdemItemService(OrderItemRepository repository, OrderItemMapper mapper)  {
+    public DefaultOrderItemService(OrderItemRepository repository, OrderItemMapper mapper)  {
         super(repository, mapper);
     }
 }

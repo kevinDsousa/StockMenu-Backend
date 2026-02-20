@@ -1,5 +1,6 @@
 package com.main.infrastructure.generic.service.impl;
 
+import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.model.mapper.GenericMapper;
 import com.main.infrastructure.generic.service.GenericService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public abstract class DefaultGenericService<E, RQ, RS> implements GenericService
     @Override
     public RS update(UUID id, RQ request) {
         if (!repository.existsById(id)) {
-            throw new RuntimeException("Registro não encontrado para atualização");
+            throw new BusinessRuleException("Registro não encontrado para atualização");
         }
         E entity = mapper.toEntity(request);
         E updatedEntity = repository.save(entity);
@@ -33,7 +34,7 @@ public abstract class DefaultGenericService<E, RQ, RS> implements GenericService
     public RS findById(UUID id) {
         return repository.findById(id)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new RuntimeException("Registro não encontrado"));
+                .orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
     }
 
     @Override
