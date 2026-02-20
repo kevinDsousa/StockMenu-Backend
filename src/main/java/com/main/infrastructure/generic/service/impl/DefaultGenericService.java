@@ -46,4 +46,5 @@ public abstract class DefaultGenericService<E, RQ, RS> implements GenericService
     public void delete(UUID id) {
         repository.deleteById(id);
     }
+
 }

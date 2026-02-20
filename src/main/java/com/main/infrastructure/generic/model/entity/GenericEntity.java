@@ -3,6 +3,10 @@ package com.main.infrastructure.generic.model.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,6 +14,8 @@ import java.util.UUID;
 @MappedSuperclass
 @Getter
 @Setter
+@FilterDef(name = "deletedFilter", parameters = @ParamDef(name = "isDeleted", type = Boolean.class))
+@Filter(name = "deletedFilter", condition = "deleted_at IS NULL = :isDeleted")
 public abstract class GenericEntity {
 
     @Id
