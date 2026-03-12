@@ -8,11 +8,18 @@ import com.main.utils.constants.MessageCommonsConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.main.model.dto.request.PaymentMethodRequestDTO;
+
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +30,16 @@ public class DefaultPaymentMethodController implements PaymentMethodController {
 
     private final PaymentMethodService service;
 
+    @PostMapping
+    public ResponseEntity<ResponseDTO<PaymentMethodResponseDTO>> create(@RequestBody @Valid PaymentMethodRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseDTO.fromData(service.create(request), HttpStatus.CREATED, MessageCommonsConstants.SAVE_SUCCESS.getValue()));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ResponseDTO<PaymentMethodResponseDTO>> update(@PathVariable UUID id, @RequestBody @Valid PaymentMethodRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.fromData(service.update(id, request), HttpStatus.OK, MessageCommonsConstants.UPDATE_SUCCESS.getValue()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ResponseDTO<PaymentMethodResponseDTO>> findById(@PathVariable UUID id) {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.fromData(service.findById(id), HttpStatus.OK, MessageCommonsConstants.FIND_ID_SUCCESS.getValue()));
@@ -31,5 +48,11 @@ public class DefaultPaymentMethodController implements PaymentMethodController {
     @GetMapping
     public ResponseEntity<ResponseDTO<List<PaymentMethodResponseDTO>>> findAll() {
         return ResponseEntity.status(HttpStatus.OK).body(ResponseDTO.fromData(service.findAll(), HttpStatus.OK, MessageCommonsConstants.FIND_ALL_SUCCESS.getValue()));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable UUID id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

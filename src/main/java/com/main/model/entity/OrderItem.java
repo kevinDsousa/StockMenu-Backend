@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+import static java.math.BigDecimal.ZERO;
+
 @Entity
 @Table(name = "order_items")
 @Getter
@@ -28,6 +30,9 @@ public class OrderItem extends GenericEntity {
     @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
 
+    @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
+    private BigDecimal totalPrice;
+
     @Column(name = "customer_name", length = 50)
     private String customerName;
 
@@ -39,8 +44,18 @@ public class OrderItem extends GenericEntity {
     private OrderItemStatus status = OrderItemStatus.PENDING;
 
     public BigDecimal getTotalPrice() {
-        if (quantity == null || unitPrice == null) return BigDecimal.ZERO;
+        if (quantity == null || unitPrice == null) return ZERO;
         return unitPrice.multiply(quantity);
+    }
+
+    @PrePersist
+    @PreUpdate
+    protected void recalcTotalPrice() {
+        if (quantity != null && unitPrice != null) {
+            this.totalPrice = unitPrice.multiply(quantity);
+        } else if (totalPrice == null) {
+            this.totalPrice = ZERO;
+        }
     }
 
     public java.util.UUID getPrimaryProductId() {

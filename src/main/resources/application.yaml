@@ -64,6 +64,7 @@ api:
   security:
     token:
       secret: ${TOKEN_SECRET:minha-chave-secreta-de-dev-pelo-menos-32-caracteres}
+      expiration-hours: ${TOKEN_EXPIRATION_HOURS:24}
 
 # =============================================================
 # Observability (Actuator & Prometheus)
@@ -87,7 +88,7 @@ management:
 # =============================================================
 springdoc:
   api-docs:
-    path: /v3/api-docs
+    path: /api-docs
   swagger-ui:
     path: /docs
     operations-sorter: alpha
@@ -105,6 +106,15 @@ logging:
   level:
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+# =============================================================
+# MinIO (Object Storage - imagens do cardápio)
+# =============================================================
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:stockmenu}
 
 # =============================================================
 # External Services (Placeholders)

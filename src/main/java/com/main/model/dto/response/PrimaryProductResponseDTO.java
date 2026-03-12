@@ -22,4 +22,5 @@ public class PrimaryProductResponseDTO extends GenericDTO {
     private boolean isStockLow;
     private boolean isExpired;
     private boolean isExpiringSoon;
+    private String imageUrl;
 }

@@ -5,10 +5,13 @@ import com.main.model.enums.TableStatus;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class VenueTableResponseDTO extends GenericDTO {
 
+    private UUID companyId;
     private Integer tableNumber;
     private Integer capacity;
     private TableStatus status;

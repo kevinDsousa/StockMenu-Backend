@@ -78,9 +78,9 @@ public class SpringDocConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("Telas - API")
-                        .description("This API provides access to the Telas application services.")
-                        .version("v1.0.0"))
+                        .title("StockMenu - API")
+                        .description("API do StockMenu (cardápio e gestão de pedidos).")
+                        .version("1.0.0"))
                 .components(components)
                 .addServersItem(new io.swagger.v3.oas.models.servers.Server().url(serverUrl));
 
@@ -89,7 +89,7 @@ public class SpringDocConfig {
     @Bean
     public GroupedOpenApi producersGroup() {
         String[] paths = {"/**"};
-        return GroupedOpenApi.builder().group("Geral").pathsToMatch(paths).build();
+        return GroupedOpenApi.builder().group("StockMenu").pathsToMatch(paths).build();
     }
 
     private String read(String key) throws IOException {

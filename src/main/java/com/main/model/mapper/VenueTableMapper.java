@@ -12,6 +12,10 @@ import org.mapstruct.MappingTarget;
 public interface VenueTableMapper extends GenericMapper<VenueTable, VenueTableRequestDTO, VenueTableResponseDTO> {
 
     @Override
+    @Mapping(target = "companyId", source = "company.id")
+    VenueTableResponseDTO toResponse(VenueTable entity);
+
+    @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     void updateEntity(VenueTableRequestDTO request, @MappingTarget VenueTable entity);

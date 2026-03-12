@@ -23,4 +23,6 @@ public class ProductResponseDTO extends GenericDTO {
 
     private LocalDate effectiveExpirationDate;
     private boolean isExpired;
+    private boolean stockLow;
+    private String imageUrl;
 }

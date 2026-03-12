@@ -22,12 +22,10 @@ public abstract class DefaultGenericService<E, RQ, RS> implements GenericService
 
     @Override
     public RS update(UUID id, RQ request) {
-        if (!repository.existsById(id)) {
-            throw new BusinessRuleException("Registro não encontrado para atualização");
-        }
-        E entity = mapper.toEntity(request);
-        E updatedEntity = repository.save(entity);
-        return mapper.toResponse(updatedEntity);
+        E entity = repository.findById(id)
+                .orElseThrow(() -> new BusinessRuleException("Registro não encontrado para atualização"));
+        mapper.updateEntity(request, entity);
+        return mapper.toResponse(repository.save(entity));
     }
 
     @Override

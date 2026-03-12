@@ -1,6 +1,7 @@
 package com.main.model.entity;
 
 import com.main.infrastructure.generic.model.entity.GenericEntity;
+import com.main.model.enums.OrderItemStatus;
 import com.main.model.enums.OrderType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class Order extends GenericEntity {
     @Column(nullable = false)
     private OrderType type;
 
-    @Column(name = "is_invoiced", nullable = false)
+    @Column(name = "invoiced", nullable = false)
     private boolean invoiced = false;
 
     @Column(name = "customer_name")
@@ -49,6 +50,7 @@ public class Order extends GenericEntity {
 
     public void calculateTotal() {
         this.totalAmount = items.stream()
+                .filter(i -> i.getStatus() != OrderItemStatus.CANCELLED)
                 .map(OrderItem::getTotalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }

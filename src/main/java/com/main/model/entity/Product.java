@@ -42,6 +42,9 @@ public class Product extends GenericEntity {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(name = "image_url", length = 512)
+    private String imageUrl;
+
     public LocalDate getEffectiveExpirationDate() {
         if (this.customExpirationDate != null) {
             return this.customExpirationDate;
@@ -52,5 +55,9 @@ public class Product extends GenericEntity {
     public boolean isExpired() {
         LocalDate effectiveDate = getEffectiveExpirationDate();
         return effectiveDate != null && LocalDate.now().isAfter(effectiveDate);
+    }
+
+    public boolean isStockLow() {
+        return primaryProduct != null && primaryProduct.isStockLow();
     }
 }

@@ -29,6 +29,10 @@ public record ProductRequestDTO(
 
         LocalDate customExpirationDate,
 
-        boolean active
+        boolean active,
+
+        byte[] image,
+
+        String imageContentType
 ) {
 }

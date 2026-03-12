@@ -1,18 +1,42 @@
 package com.main.service.impl;
 
+import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
 import com.main.model.dto.request.OrderItemRequestDTO;
 import com.main.model.dto.response.OrderItemResponseDTO;
 import com.main.model.entity.OrderItem;
+import com.main.model.enums.OrderItemStatus;
 import com.main.model.mapper.OrderItemMapper;
 import com.main.repository.OrderItemRepository;
+import com.main.repository.OrderRepository;
 import com.main.service.OrderItemService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 public class DefaultOrderItemService extends DefaultGenericService<OrderItem, OrderItemRequestDTO, OrderItemResponseDTO> implements OrderItemService {
 
-    public DefaultOrderItemService(OrderItemRepository repository, OrderItemMapper mapper)  {
+    private final OrderRepository orderRepository;
+
+    public DefaultOrderItemService(OrderItemRepository repository, OrderItemMapper mapper, OrderRepository orderRepository) {
         super(repository, mapper);
+        this.orderRepository = orderRepository;
+    }
+
+    @Override
+    @Transactional
+    public OrderItemResponseDTO cancel(UUID orderItemId) {
+        OrderItem item = repository.findById(orderItemId)
+                .orElseThrow(() -> new BusinessRuleException("Item do pedido não encontrado"));
+        if (item.getOrder() == null || !item.getOrder().canBeModified()) {
+            throw new BusinessRuleException("Pedido não pode ser alterado (já faturado ou excluído)");
+        }
+        item.setStatus(OrderItemStatus.CANCELLED);
+        repository.save(item);
+        item.getOrder().calculateTotal();
+        orderRepository.save(item.getOrder());
+        return mapper.toResponse(repository.findById(orderItemId).orElse(item));
     }
 }

@@ -13,6 +13,6 @@ public class CompanyResponseDTO extends GenericDTO {
     private String cnpj;
     private String whatsapp;
     private boolean active;
-
+    private Integer maxWaiters;
     private boolean canOperate;
 }

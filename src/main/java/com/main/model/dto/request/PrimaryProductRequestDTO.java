@@ -30,6 +30,10 @@ public record PrimaryProductRequestDTO(
         @FutureOrPresent(message = "Expiration date must be today or in the future")
         LocalDate expirationDate,
 
-        String productType
+        String productType,
+
+        byte[] image,
+
+        String imageContentType
 ) {
 }

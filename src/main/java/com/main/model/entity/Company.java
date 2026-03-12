@@ -28,6 +28,9 @@ public class Company extends GenericEntity {
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
+    @Column(name = "max_waiters")
+    private Integer maxWaiters = 10;
+
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Subscription> subscriptions;
 

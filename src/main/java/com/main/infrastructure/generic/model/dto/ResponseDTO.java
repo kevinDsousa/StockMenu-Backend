@@ -1,5 +1,6 @@
 package com.main.infrastructure.generic.model.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serial;
@@ -37,7 +38,8 @@ public class ResponseDTO<T> implements Serializable {
                 .setErrors(errors);
     }
 
-    public String getMensagem() {
+    @JsonProperty("message")
+    public String getMessage() {
         return message;
     }
 

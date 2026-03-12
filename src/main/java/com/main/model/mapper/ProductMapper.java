@@ -14,5 +14,16 @@ public interface ProductMapper extends GenericMapper<Product, ProductRequestDTO,
     @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "imageUrl", ignore = true)
+    @Mapping(target = "company", ignore = true)
+    @Mapping(target = "primaryProduct", ignore = true)
+    Product toEntity(ProductRequestDTO request);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "imageUrl", ignore = true)
     void updateEntity(ProductRequestDTO request, @MappingTarget Product entity);
 }

@@ -38,6 +38,9 @@ public class PrimaryProduct extends GenericEntity {
     @Column(name = "product_type")
     private String productType;
 
+    @Column(name = "image_url", length = 512)
+    private String imageUrl;
+
     public boolean isStockLow() {
         return lowStockAlert != null && currentStock.compareTo(lowStockAlert) <= 0;
     }
