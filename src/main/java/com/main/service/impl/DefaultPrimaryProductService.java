@@ -9,6 +9,7 @@ import com.main.model.entity.PrimaryProduct;
 import com.main.model.mapper.PrimaryProductMapper;
 import com.main.repository.CompanyRepository;
 import com.main.repository.PrimaryProductRepository;
+import com.main.repository.UnitMeasureRepository;
 import com.main.service.ImageService;
 import com.main.service.PrimaryProductService;
 import org.springframework.stereotype.Service;
@@ -22,17 +23,23 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
 
     private final CompanyRepository companyRepository;
     private final ImageService imageService;
+    private final UnitMeasureRepository unitMeasureRepository;
 
     public DefaultPrimaryProductService(PrimaryProductRepository repository, PrimaryProductMapper mapper,
-                                       CompanyRepository companyRepository, ImageService imageService) {
+                                       CompanyRepository companyRepository, ImageService imageService,
+                                       UnitMeasureRepository unitMeasureRepository) {
         super(repository, mapper);
         this.companyRepository = companyRepository;
         this.imageService = imageService;
+        this.unitMeasureRepository = unitMeasureRepository;
     }
 
     @Override
     @Transactional
     public PrimaryProductResponseDTO create(PrimaryProductRequestDTO request) {
+        unitMeasureRepository.findByKeyAndDeletedAtIsNull(request.unit())
+                .filter(u -> u.isActive())
+                .orElseThrow(() -> new BusinessRuleException("Unidade de medida não encontrada ou inativa."));
         PrimaryProduct entity = mapper.toEntity(request);
         Company company = companyRepository.findById(request.companyId())
                 .orElseThrow(() -> new BusinessRuleException("Empresa não encontrada"));
@@ -51,6 +58,9 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
     @Override
     @Transactional
     public PrimaryProductResponseDTO update(UUID id, PrimaryProductRequestDTO request) {
+        unitMeasureRepository.findByKeyAndDeletedAtIsNull(request.unit())
+                .filter(u -> u.isActive())
+                .orElseThrow(() -> new BusinessRuleException("Unidade de medida não encontrada ou inativa."));
         PrimaryProduct entity = repository.findById(id)
                 .orElseThrow(() -> new BusinessRuleException("Registro não encontrado para atualização"));
         mapper.updateEntity(request, entity);

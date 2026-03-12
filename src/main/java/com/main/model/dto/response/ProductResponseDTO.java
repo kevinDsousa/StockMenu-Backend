@@ -1,7 +1,6 @@
 package com.main.model.dto.response;
 
 import com.main.infrastructure.generic.model.dto.GenericDTO;
-import com.main.model.enums.UnitMeasure;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +16,7 @@ public class ProductResponseDTO extends GenericDTO {
     private String primaryProductName;
     private String name;
     private BigDecimal price;
-    private UnitMeasure sellUnit;
+    private String sellUnit;
     private boolean fractional;
     private boolean active;
 

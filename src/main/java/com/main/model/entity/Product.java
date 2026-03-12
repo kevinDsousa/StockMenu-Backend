@@ -1,7 +1,6 @@
 package com.main.model.entity;
 
 import com.main.infrastructure.generic.model.entity.GenericEntity;
-import com.main.model.enums.UnitMeasure;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,9 +28,8 @@ public class Product extends GenericEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "sell_unit", nullable = false)
-    private UnitMeasure sellUnit;
+    @Column(name = "sell_unit", nullable = false, length = 20)
+    private String sellUnit;
 
     @Column(name = "is_fractional", nullable = false)
     private boolean fractional = false;

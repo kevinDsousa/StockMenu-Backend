@@ -1,6 +1,5 @@
 package com.main.model.dto.request;
 
-import com.main.model.enums.UnitMeasure;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -22,8 +21,8 @@ public record ProductRequestDTO(
         @Positive(message = "Price must be greater than zero")
         BigDecimal price,
 
-        @NotNull(message = "Sell unit is required")
-        UnitMeasure sellUnit,
+        @NotBlank(message = "Sell unit is required")
+        String sellUnit,
 
         boolean fractional,
 

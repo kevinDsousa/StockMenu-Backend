@@ -1,7 +1,6 @@
 package com.main.model.entity;
 
 import com.main.infrastructure.generic.model.entity.GenericEntity;
-import com.main.model.enums.UnitMeasure;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,9 +24,8 @@ public class PrimaryProduct extends GenericEntity {
     @Column(name = "current_stock", precision = 12, scale = 3, nullable = false)
     private BigDecimal currentStock = BigDecimal.ZERO;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UnitMeasure unit;
+    @Column(nullable = false, length = 20)
+    private String unit;
 
     @Column(name = "low_stock_alert", precision = 12, scale = 3)
     private BigDecimal lowStockAlert;

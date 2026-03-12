@@ -1,6 +1,5 @@
 package com.main.model.dto.request;
 
-import com.main.model.enums.UnitMeasure;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -20,8 +19,8 @@ public record PrimaryProductRequestDTO(
         @PositiveOrZero(message = "Stock cannot be negative")
         BigDecimal currentStock,
 
-        @NotNull(message = "Unit of measure is required")
-        UnitMeasure unit,
+        @NotBlank(message = "Unit of measure is required")
+        String unit,
 
         @PositiveOrZero(message = "Low stock alert must be positive or zero")
         BigDecimal lowStockAlert,

@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface PrimaryProductRepository extends GenericRepository<PrimaryProduct> {
 
     List<PrimaryProduct> findByCompany_Id(UUID companyId);
+
+    long countByUnitAndDeletedAtIsNull(String unit);
 }
