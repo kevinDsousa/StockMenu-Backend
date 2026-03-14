@@ -2,6 +2,7 @@ package com.main.service.impl;
 
 import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
+import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.OrderItemRequestDTO;
 import com.main.model.dto.response.OrderItemResponseDTO;
 import com.main.model.entity.OrderItem;
@@ -19,10 +20,12 @@ import java.util.UUID;
 public class DefaultOrderItemService extends DefaultGenericService<OrderItem, OrderItemRequestDTO, OrderItemResponseDTO> implements OrderItemService {
 
     private final OrderRepository orderRepository;
+    private final AuthorizationService authorizationService;
 
-    public DefaultOrderItemService(OrderItemRepository repository, OrderItemMapper mapper, OrderRepository orderRepository) {
+    public DefaultOrderItemService(OrderItemRepository repository, OrderItemMapper mapper, OrderRepository orderRepository, AuthorizationService authorizationService) {
         super(repository, mapper);
         this.orderRepository = orderRepository;
+        this.authorizationService = authorizationService;
     }
 
     @Override
@@ -30,7 +33,11 @@ public class DefaultOrderItemService extends DefaultGenericService<OrderItem, Or
     public OrderItemResponseDTO cancel(UUID orderItemId) {
         OrderItem item = repository.findById(orderItemId)
                 .orElseThrow(() -> new BusinessRuleException("Item do pedido não encontrado"));
-        if (item.getOrder() == null || !item.getOrder().canBeModified()) {
+        if (item.getOrder() == null) {
+            throw new BusinessRuleException("Item do pedido não está vinculado a um pedido");
+        }
+        authorizationService.requireCompanyAccess(item.getOrder().getCompany().getId());
+        if (!item.getOrder().canBeModified()) {
             throw new BusinessRuleException("Pedido não pode ser alterado (já faturado ou excluído)");
         }
         item.setStatus(OrderItemStatus.CANCELLED);

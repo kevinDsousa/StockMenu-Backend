@@ -2,6 +2,7 @@ package com.main.service.impl;
 
 import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
+import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.OrderRequestDTO;
 import com.main.model.dto.response.OrderResponseDTO;
 import com.main.model.entity.Order;
@@ -20,15 +21,32 @@ import java.util.UUID;
 public class DefaultOrderService extends DefaultGenericService<Order, OrderRequestDTO, OrderResponseDTO> implements OrderService {
 
     private final VenueTableRepository venueTableRepository;
+    private final AuthorizationService authorizationService;
 
-    public DefaultOrderService(OrderRepository repository, OrderMapper mapper, VenueTableRepository venueTableRepository) {
+    public DefaultOrderService(OrderRepository repository, OrderMapper mapper, VenueTableRepository venueTableRepository, AuthorizationService authorizationService) {
         super(repository, mapper);
         this.venueTableRepository = venueTableRepository;
+        this.authorizationService = authorizationService;
     }
 
     @Override
     public List<OrderResponseDTO> findByCompanyId(UUID companyId) {
+        authorizationService.requireCompanyAccess(companyId);
         return mapper.toResponseList(((OrderRepository) repository).findByCompany_Id(companyId));
+    }
+
+    @Override
+    public OrderResponseDTO findById(UUID id) {
+        Order order = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(order.getCompany().getId());
+        return mapper.toResponse(order);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        Order order = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(order.getCompany().getId());
+        repository.deleteById(id);
     }
 
     @Override
@@ -36,6 +54,7 @@ public class DefaultOrderService extends DefaultGenericService<Order, OrderReque
     public OrderResponseDTO transferOrderToTable(UUID orderId, UUID targetTableId) {
         Order order = repository.findById(orderId)
                 .orElseThrow(() -> new BusinessRuleException("Pedido não encontrado"));
+        authorizationService.requireCompanyAccess(order.getCompany().getId());
         if (!order.canBeModified()) {
             throw new BusinessRuleException("Pedido não pode ser alterado (já faturado ou excluído)");
         }

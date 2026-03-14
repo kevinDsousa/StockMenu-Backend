@@ -15,5 +15,22 @@ public interface CompanyMapper extends GenericMapper<Company, CompanyRequestDTO,
     @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "subscriptions", ignore = true)
+    Company toEntity(CompanyRequestDTO request);
+
+    @Override
+    @Mapping(target = "canOperate", expression = "java(entity.canOperate())")
+    CompanyResponseDTO toResponse(Company entity);
+
+    @Override
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "subscriptions", ignore = true)
     void updateEntity(CompanyRequestDTO request, @MappingTarget Company entity);
 }

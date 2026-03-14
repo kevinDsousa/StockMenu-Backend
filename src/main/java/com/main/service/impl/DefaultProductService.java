@@ -2,6 +2,7 @@ package com.main.service.impl;
 
 import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
+import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.ProductRequestDTO;
 import com.main.model.dto.response.ProductResponseDTO;
 import com.main.model.entity.Company;
@@ -25,19 +26,22 @@ public class DefaultProductService extends DefaultGenericService<Product, Produc
     private final CompanyRepository companyRepository;
     private final PrimaryProductRepository primaryProductRepository;
     private final ImageService imageService;
+    private final AuthorizationService authorizationService;
 
     public DefaultProductService(ProductRepository repository, ProductMapper mapper,
                                 CompanyRepository companyRepository, PrimaryProductRepository primaryProductRepository,
-                                ImageService imageService) {
+                                ImageService imageService, AuthorizationService authorizationService) {
         super(repository, mapper);
         this.companyRepository = companyRepository;
         this.primaryProductRepository = primaryProductRepository;
         this.imageService = imageService;
+        this.authorizationService = authorizationService;
     }
 
     @Override
     @Transactional
     public ProductResponseDTO create(ProductRequestDTO request) {
+        authorizationService.requireCompanyAccess(request.companyId());
         Product entity = mapper.toEntity(request);
         Company company = companyRepository.findById(request.companyId())
                 .orElseThrow(() -> new BusinessRuleException("Empresa não encontrada"));
@@ -59,6 +63,7 @@ public class DefaultProductService extends DefaultGenericService<Product, Produc
     @Override
     @Transactional
     public ProductResponseDTO update(UUID id, ProductRequestDTO request) {
+        authorizationService.requireCompanyAccess(request.companyId());
         Product entity = repository.findById(id)
                 .orElseThrow(() -> new BusinessRuleException("Registro não encontrado para atualização"));
         mapper.updateEntity(request, entity);
@@ -81,7 +86,9 @@ public class DefaultProductService extends DefaultGenericService<Product, Produc
 
     @Override
     public ProductResponseDTO findById(UUID id) {
-        return enrichWithImageUrl(super.findById(id));
+        Product entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        return enrichWithImageUrl(mapper.toResponse(entity));
     }
 
     @Override
@@ -92,7 +99,15 @@ public class DefaultProductService extends DefaultGenericService<Product, Produc
     }
 
     @Override
+    public void delete(UUID id) {
+        Product entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        repository.deleteById(id);
+    }
+
+    @Override
     public List<ProductResponseDTO> findByCompanyId(UUID companyId) {
+        authorizationService.requireCompanyAccess(companyId);
         return ((ProductRepository) repository).findByCompany_Id(companyId).stream()
                 .map(e -> enrichWithImageUrl(mapper.toResponse(e)))
                 .toList();

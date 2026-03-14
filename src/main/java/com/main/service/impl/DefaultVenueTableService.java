@@ -2,6 +2,7 @@ package com.main.service.impl;
 
 import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
+import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.VenueTableMergeRequestDTO;
 import com.main.model.dto.request.VenueTableRequestDTO;
 import com.main.model.dto.request.VenueTableSplitRequestDTO;
@@ -23,16 +24,33 @@ import java.util.UUID;
 public class DefaultVenueTableService extends DefaultGenericService<VenueTable, VenueTableRequestDTO, VenueTableResponseDTO> implements VenueTableService {
 
     private final OrderRepository orderRepository;
+    private final AuthorizationService authorizationService;
 
-    public DefaultVenueTableService(VenueTableRepository repository, VenueTableMapper mapper, OrderRepository orderRepository) {
+    public DefaultVenueTableService(VenueTableRepository repository, VenueTableMapper mapper, OrderRepository orderRepository, AuthorizationService authorizationService) {
         super(repository, mapper);
         this.orderRepository = orderRepository;
+        this.authorizationService = authorizationService;
     }
 
     @Override
     public List<VenueTableResponseDTO> findByCompanyId(UUID companyId) {
+        authorizationService.requireCompanyAccess(companyId);
         VenueTableRepository venueTableRepository = (VenueTableRepository) repository;
         return mapper.toResponseList(venueTableRepository.findByCompany_Id(companyId));
+    }
+
+    @Override
+    public VenueTableResponseDTO findById(UUID id) {
+        VenueTable entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        return mapper.toResponse(entity);
+    }
+
+    @Override
+    public void delete(UUID id) {
+        VenueTable entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        repository.deleteById(id);
     }
 
     @Override
@@ -40,6 +58,7 @@ public class DefaultVenueTableService extends DefaultGenericService<VenueTable, 
     public VenueTableResponseDTO split(UUID tableId, VenueTableSplitRequestDTO request) {
         VenueTable sourceTable = repository.findById(tableId)
                 .orElseThrow(() -> new BusinessRuleException("Mesa não encontrada"));
+        authorizationService.requireCompanyAccess(sourceTable.getCompany().getId());
         for (VenueTableSplitRequestDTO.SplitTargetDTO target : request.targets()) {
             VenueTable newTable = new VenueTable();
             newTable.setCompany(sourceTable.getCompany());
@@ -72,6 +91,7 @@ public class DefaultVenueTableService extends DefaultGenericService<VenueTable, 
     @Override
     @Transactional
     public VenueTableResponseDTO merge(VenueTableMergeRequestDTO request) {
+        authorizationService.requireCompanyAccess(request.companyId());
         VenueTable targetTable;
         if (request.targetTableId() != null) {
             targetTable = repository.findById(request.targetTableId())

@@ -2,6 +2,7 @@ package com.main.service.impl;
 
 import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
+import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.UserRequestDTO;
 import com.main.model.dto.response.UserResponseDTO;
 import com.main.model.entity.Company;
@@ -23,16 +24,23 @@ public class DefaultUserService extends DefaultGenericService<User, UserRequestD
 
     private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthorizationService authorizationService;
 
-    public DefaultUserService(UserRepository repository, UserMapper mapper, CompanyRepository companyRepository, PasswordEncoder passwordEncoder) {
+    public DefaultUserService(UserRepository repository, UserMapper mapper, CompanyRepository companyRepository, PasswordEncoder passwordEncoder, AuthorizationService authorizationService) {
         super(repository, mapper);
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authorizationService = authorizationService;
     }
 
     @Override
     @Transactional
     public UserResponseDTO create(UserRequestDTO request) {
+        if (request.companyId() != null) {
+            authorizationService.requireCompanyAccess(request.companyId());
+        } else {
+            authorizationService.requireSuperAdmin();
+        }
         validateWaiterLimit(request);
         User entity = mapper.toEntity(request);
         if (request.companyId() != null) {
@@ -53,6 +61,12 @@ public class DefaultUserService extends DefaultGenericService<User, UserRequestD
     public UserResponseDTO update(UUID id, UserRequestDTO request) {
         User entity = repository.findById(id)
                 .orElseThrow(() -> new BusinessRuleException("Registro não encontrado para atualização"));
+        UUID resourceCompanyId = request.companyId() != null ? request.companyId() : (entity.getCompany() != null ? entity.getCompany().getId() : null);
+        if (resourceCompanyId != null) {
+            authorizationService.requireCompanyAccess(resourceCompanyId);
+        } else {
+            authorizationService.requireSuperAdmin();
+        }
         validateWaiterLimit(request, entity);
         mapper.updateEntity(request, entity);
         if (request.companyId() != null) {
@@ -69,8 +83,31 @@ public class DefaultUserService extends DefaultGenericService<User, UserRequestD
     }
 
     @Override
+    public UserResponseDTO findById(UUID id) {
+        User entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        if (entity.getCompany() != null) {
+            authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        } else {
+            authorizationService.requireSuperAdmin();
+        }
+        return mapper.toResponse(entity);
+    }
+
+    @Override
     public List<UserResponseDTO> findByCompanyId(UUID companyId) {
+        authorizationService.requireCompanyAccess(companyId);
         return mapper.toResponseList(((UserRepository) repository).findByCompany_Id(companyId));
+    }
+
+    @Override
+    public void delete(UUID id) {
+        User entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        if (entity.getCompany() != null) {
+            authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        } else {
+            authorizationService.requireSuperAdmin();
+        }
+        repository.deleteById(id);
     }
 
     private void validateWaiterLimit(UserRequestDTO request) {

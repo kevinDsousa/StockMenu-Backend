@@ -2,6 +2,7 @@ package com.main.service.impl;
 
 import com.main.infrastructure.exeptions.BusinessRuleException;
 import com.main.infrastructure.generic.service.impl.DefaultGenericService;
+import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.PrimaryProductRequestDTO;
 import com.main.model.dto.response.PrimaryProductResponseDTO;
 import com.main.model.entity.Company;
@@ -24,19 +25,22 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
     private final CompanyRepository companyRepository;
     private final ImageService imageService;
     private final UnitMeasureRepository unitMeasureRepository;
+    private final AuthorizationService authorizationService;
 
     public DefaultPrimaryProductService(PrimaryProductRepository repository, PrimaryProductMapper mapper,
                                        CompanyRepository companyRepository, ImageService imageService,
-                                       UnitMeasureRepository unitMeasureRepository) {
+                                       UnitMeasureRepository unitMeasureRepository, AuthorizationService authorizationService) {
         super(repository, mapper);
         this.companyRepository = companyRepository;
         this.imageService = imageService;
         this.unitMeasureRepository = unitMeasureRepository;
+        this.authorizationService = authorizationService;
     }
 
     @Override
     @Transactional
     public PrimaryProductResponseDTO create(PrimaryProductRequestDTO request) {
+        authorizationService.requireCompanyAccess(request.companyId());
         unitMeasureRepository.findByKeyAndDeletedAtIsNull(request.unit())
                 .filter(u -> u.isActive())
                 .orElseThrow(() -> new BusinessRuleException("Unidade de medida não encontrada ou inativa."));
@@ -58,6 +62,7 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
     @Override
     @Transactional
     public PrimaryProductResponseDTO update(UUID id, PrimaryProductRequestDTO request) {
+        authorizationService.requireCompanyAccess(request.companyId());
         unitMeasureRepository.findByKeyAndDeletedAtIsNull(request.unit())
                 .filter(u -> u.isActive())
                 .orElseThrow(() -> new BusinessRuleException("Unidade de medida não encontrada ou inativa."));
@@ -80,7 +85,9 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
 
     @Override
     public PrimaryProductResponseDTO findById(UUID id) {
-        return enrichWithImageUrl(super.findById(id));
+        PrimaryProduct entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        return enrichWithImageUrl(mapper.toResponse(entity));
     }
 
     @Override
@@ -91,7 +98,15 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
     }
 
     @Override
+    public void delete(UUID id) {
+        PrimaryProduct entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        repository.deleteById(id);
+    }
+
+    @Override
     public List<PrimaryProductResponseDTO> findByCompanyId(UUID companyId) {
+        authorizationService.requireCompanyAccess(companyId);
         return ((PrimaryProductRepository) repository).findByCompany_Id(companyId).stream()
                 .map(e -> enrichWithImageUrl(mapper.toResponse(e)))
                 .toList();
