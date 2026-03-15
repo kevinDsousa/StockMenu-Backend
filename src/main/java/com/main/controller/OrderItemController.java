@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.main.model.dto.request.OrderItemRequestDTO;
 
@@ -29,6 +30,9 @@ public interface OrderItemController {
 
     @Operation(summary = "Find all order itens", responses = { @ApiResponse(responseCode = "200", description = "Success.") })
     ResponseEntity<ResponseDTO<List<OrderItemResponseDTO>>> findAll();
+
+    @Operation(summary = "Find order items by order id", responses = { @ApiResponse(responseCode = "200", description = "Success.") })
+    ResponseEntity<ResponseDTO<List<OrderItemResponseDTO>>> findByOrderId(@RequestParam UUID orderId);
 
     @Operation(summary = "Delete order item by id", responses = { @ApiResponse(responseCode = "204", description = "No content.") })
     ResponseEntity<Void> delete(@PathVariable UUID id);

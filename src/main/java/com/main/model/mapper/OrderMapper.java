@@ -3,12 +3,13 @@ package com.main.model.mapper;
 import com.main.infrastructure.generic.model.mapper.GenericMapper;
 import com.main.model.dto.request.OrderRequestDTO;
 import com.main.model.dto.response.OrderResponseDTO;
+import com.main.infrastructure.generic.model.mapper.CentralMapperConfig;
 import com.main.model.entity.Order;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", config = CentralMapperConfig.class)
 public interface OrderMapper extends GenericMapper<Order, OrderRequestDTO, OrderResponseDTO> {
 
     @Override

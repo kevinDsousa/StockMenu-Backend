@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Controller genérico que retorna entidades/lista diretamente, sem envelope ResponseDTO.
+ * Os controllers de domínio atuais não estendem esta classe; usam ResponseDTO, status 201/200/204
+ * e MessageCommonsConstants via ControllerResponseHelper.
+ */
 public abstract class GenericController<RQ, RS> {
 
     protected abstract GenericService<RQ, RS> getService();

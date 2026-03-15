@@ -3,13 +3,13 @@ package com.main.model.mapper;
 import com.main.infrastructure.generic.model.mapper.GenericMapper;
 import com.main.model.dto.request.CompanyRequestDTO;
 import com.main.model.dto.response.CompanyResponseDTO;
+import com.main.infrastructure.generic.model.mapper.CentralMapperConfig;
 import com.main.model.entity.Company;
-
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", config = CentralMapperConfig.class)
 public interface CompanyMapper extends GenericMapper<Company, CompanyRequestDTO, CompanyResponseDTO> {
 
     @Override

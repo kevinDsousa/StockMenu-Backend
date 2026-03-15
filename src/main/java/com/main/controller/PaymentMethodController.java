@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.main.model.dto.request.PaymentMethodRequestDTO;
 
@@ -28,7 +29,7 @@ public interface PaymentMethodController {
     ResponseEntity<ResponseDTO<PaymentMethodResponseDTO>> findById(@PathVariable UUID id);
 
     @Operation(summary = "Find all payment methods", responses = { @ApiResponse(responseCode = "200", description = "Success.") })
-    ResponseEntity<ResponseDTO<List<PaymentMethodResponseDTO>>> findAll();
+    ResponseEntity<ResponseDTO<List<PaymentMethodResponseDTO>>> findAll(@RequestParam(required = false) UUID companyId);
 
     @Operation(summary = "Delete payment method by id", responses = { @ApiResponse(responseCode = "204", description = "No content.") })
     ResponseEntity<Void> delete(@PathVariable UUID id);
