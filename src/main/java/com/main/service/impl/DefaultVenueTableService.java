@@ -6,11 +6,14 @@ import com.main.infrastructure.security.AuthorizationService;
 import com.main.model.dto.request.VenueTableMergeRequestDTO;
 import com.main.model.dto.request.VenueTableRequestDTO;
 import com.main.model.dto.request.VenueTableSplitRequestDTO;
+import com.main.model.dto.request.VenueTableStatusRequestDTO;
 import com.main.model.dto.response.VenueTableResponseDTO;
+import com.main.model.entity.Company;
 import com.main.model.entity.Order;
 import com.main.model.entity.VenueTable;
 import com.main.model.enums.TableStatus;
 import com.main.model.mapper.VenueTableMapper;
+import com.main.repository.CompanyRepository;
 import com.main.repository.OrderRepository;
 import com.main.repository.VenueTableRepository;
 import com.main.service.VenueTableService;
@@ -24,15 +27,20 @@ import java.util.UUID;
 public class DefaultVenueTableService extends DefaultGenericService<VenueTable, VenueTableRequestDTO, VenueTableResponseDTO> implements VenueTableService {
 
     private final OrderRepository orderRepository;
+    private final CompanyRepository companyRepository;
     private final AuthorizationService authorizationService;
 
-    public DefaultVenueTableService(VenueTableRepository repository, VenueTableMapper mapper, OrderRepository orderRepository, AuthorizationService authorizationService) {
+    public DefaultVenueTableService(VenueTableRepository repository, VenueTableMapper mapper,
+                                    OrderRepository orderRepository, CompanyRepository companyRepository,
+                                    AuthorizationService authorizationService) {
         super(repository, mapper);
         this.orderRepository = orderRepository;
+        this.companyRepository = companyRepository;
         this.authorizationService = authorizationService;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<VenueTableResponseDTO> findByCompanyId(UUID companyId) {
         authorizationService.requireCompanyAccess(companyId);
         VenueTableRepository venueTableRepository = (VenueTableRepository) repository;
@@ -40,6 +48,7 @@ public class DefaultVenueTableService extends DefaultGenericService<VenueTable, 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public VenueTableResponseDTO findById(UUID id) {
         VenueTable entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
         authorizationService.requireCompanyAccess(entity.getCompany().getId());
@@ -51,6 +60,22 @@ public class DefaultVenueTableService extends DefaultGenericService<VenueTable, 
         VenueTable entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
         authorizationService.requireCompanyAccess(entity.getCompany().getId());
         repository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public VenueTableResponseDTO create(VenueTableRequestDTO request) {
+        authorizationService.requireCompanyAccess(request.companyId());
+        Company company = companyRepository.findById(request.companyId())
+                .orElseThrow(() -> new BusinessRuleException("Empresa não encontrada"));
+        VenueTable entity = new VenueTable();
+        entity.setCompany(company);
+        entity.setTableNumber(request.tableNumber());
+        entity.setCapacity(request.capacity());
+        entity.setStatus(TableStatus.FREE);
+        entity.setActive(true);
+        VenueTable saved = repository.save(entity);
+        return mapper.toResponse(saved);
     }
 
     @Override
@@ -127,5 +152,16 @@ public class DefaultVenueTableService extends DefaultGenericService<VenueTable, 
             repository.save(source);
         }
         return mapper.toResponse(repository.findById(targetTable.getId()).orElse(targetTable));
+    }
+
+    @Override
+    @Transactional
+    public VenueTableResponseDTO setStatus(UUID id, VenueTableStatusRequestDTO request) {
+        VenueTable entity = repository.findById(id)
+                .orElseThrow(() -> new BusinessRuleException("Mesa não encontrada"));
+        authorizationService.requireCompanyAccess(entity.getCompany().getId());
+        entity.setStatus(request.status());
+        VenueTable saved = repository.save(entity);
+        return mapper.toResponse(saved);
     }
 }

@@ -4,6 +4,7 @@ import com.main.infrastructure.generic.service.GenericService;
 import com.main.model.dto.request.VenueTableMergeRequestDTO;
 import com.main.model.dto.request.VenueTableRequestDTO;
 import com.main.model.dto.request.VenueTableSplitRequestDTO;
+import com.main.model.dto.request.VenueTableStatusRequestDTO;
 import com.main.model.dto.response.VenueTableResponseDTO;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface VenueTableService extends GenericService<VenueTableRequestDTO, 
     VenueTableResponseDTO split(UUID tableId, VenueTableSplitRequestDTO request);
 
     VenueTableResponseDTO merge(VenueTableMergeRequestDTO request);
+
+    VenueTableResponseDTO setStatus(UUID id, VenueTableStatusRequestDTO request);
 }

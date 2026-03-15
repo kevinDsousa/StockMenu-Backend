@@ -17,6 +17,9 @@ public class PrimaryProductResponseDTO extends GenericDTO {
     private BigDecimal lowStockAlert;
     private LocalDate expirationDate;
     private String productType;
+    private LocalDate stockEntryDate;
+    private String storageType;
+    private Integer maxStorageDays;
 
     private boolean isStockLow;
     private boolean isExpired;

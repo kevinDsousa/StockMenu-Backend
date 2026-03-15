@@ -25,6 +25,10 @@ public class Order extends GenericEntity {
     @JoinColumn(name = "table_id")
     private VenueTable venueTable;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by_user_id")
+    private User createdByUser;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderType type;

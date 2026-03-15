@@ -2,7 +2,6 @@ package com.main.model.dto.request;
 
 import com.main.model.enums.OrderType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -26,7 +25,7 @@ public record OrderRequestDTO(
 
         UUID paymentMethodId,
 
-        @NotEmpty(message = "Order must have at least one item")
+        @NotNull(message = "Items list is required")
         @Valid
         List<OrderItemRequestDTO> items
 ) {

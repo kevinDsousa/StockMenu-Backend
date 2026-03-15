@@ -31,7 +31,9 @@ public class DefaultCompanyService extends DefaultGenericService<Company, Compan
 
     @Override
     public CompanyResponseDTO findById(UUID id) {
-        Company entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        CompanyRepository companyRepository = (CompanyRepository) repository;
+        Company entity = companyRepository.findByIdWithSubscriptions(id)
+                .orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
         authorizationService.requireCompanyAccess(entity.getId());
         return mapper.toResponse(entity);
     }

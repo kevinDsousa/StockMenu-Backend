@@ -85,13 +85,16 @@ public class DefaultProductService extends DefaultGenericService<Product, Produc
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ProductResponseDTO findById(UUID id) {
-        Product entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        Product entity = ((ProductRepository) repository).findByIdWithPrimaryProduct(id)
+                .orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
         authorizationService.requireCompanyAccess(entity.getCompany().getId());
         return enrichWithImageUrl(mapper.toResponse(entity));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> findAll() {
         return super.findAll().stream()
                 .map(this::enrichWithImageUrl)
@@ -106,9 +109,10 @@ public class DefaultProductService extends DefaultGenericService<Product, Produc
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductResponseDTO> findByCompanyId(UUID companyId) {
         authorizationService.requireCompanyAccess(companyId);
-        return ((ProductRepository) repository).findByCompany_Id(companyId).stream()
+        return ((ProductRepository) repository).findByCompany_IdWithPrimaryProduct(companyId).stream()
                 .map(e -> enrichWithImageUrl(mapper.toResponse(e)))
                 .toList();
     }

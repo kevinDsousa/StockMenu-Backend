@@ -13,6 +13,12 @@ import org.mapstruct.MappingTarget;
 public interface PrimaryProductMapper extends GenericMapper<PrimaryProduct, PrimaryProductRequestDTO, PrimaryProductResponseDTO> {
 
     @Override
+    @Mapping(target = "stockLow", ignore = true)
+    @Mapping(target = "expired", ignore = true)
+    @Mapping(target = "expiringSoon", ignore = true)
+    PrimaryProductResponseDTO toResponse(PrimaryProduct entity);
+
+    @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

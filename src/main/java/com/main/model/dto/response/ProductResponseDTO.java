@@ -14,6 +14,9 @@ public class ProductResponseDTO extends GenericDTO {
 
     private UUID primaryProductId;
     private String primaryProductName;
+    private LocalDate primaryProductStockEntryDate;
+    private String primaryProductStorageType;
+    private Integer primaryProductMaxStorageDays;
     private String name;
     private BigDecimal price;
     private String sellUnit;

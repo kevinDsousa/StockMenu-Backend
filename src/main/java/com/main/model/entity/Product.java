@@ -18,7 +18,7 @@ public class Product extends GenericEntity {
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "primary_product_id", nullable = false)
     private PrimaryProduct primaryProduct;
 

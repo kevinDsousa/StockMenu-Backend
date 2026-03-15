@@ -31,6 +31,12 @@ public record PrimaryProductRequestDTO(
 
         String productType,
 
+        LocalDate stockEntryDate,
+
+        String storageType,
+
+        Integer maxStorageDays,
+
         byte[] image,
 
         String imageContentType

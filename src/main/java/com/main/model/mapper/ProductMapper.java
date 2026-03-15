@@ -23,6 +23,14 @@ public interface ProductMapper extends GenericMapper<Product, ProductRequestDTO,
     Product toEntity(ProductRequestDTO request);
 
     @Override
+    @Mapping(source = "primaryProduct.id", target = "primaryProductId")
+    @Mapping(source = "primaryProduct.name", target = "primaryProductName")
+    @Mapping(source = "primaryProduct.stockEntryDate", target = "primaryProductStockEntryDate")
+    @Mapping(source = "primaryProduct.storageType", target = "primaryProductStorageType")
+    @Mapping(source = "primaryProduct.maxStorageDays", target = "primaryProductMaxStorageDays")
+    ProductResponseDTO toResponse(Product entity);
+
+    @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "imageUrl", ignore = true)

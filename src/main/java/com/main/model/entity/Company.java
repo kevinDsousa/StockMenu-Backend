@@ -31,6 +31,9 @@ public class Company extends GenericEntity {
     @Column(name = "max_waiters")
     private Integer maxWaiters = 10;
 
+    @Column(name = "stock_expiring_days")
+    private Integer stockExpiringDays = 7;
+
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Subscription> subscriptions;
 
@@ -44,5 +47,9 @@ public class Company extends GenericEntity {
 
     public boolean canOperate() {
         return this.active && getActiveSubscription() != null;
+    }
+
+    public int getStockExpiringDaysOrDefault() {
+        return stockExpiringDays != null && stockExpiringDays > 0 ? stockExpiringDays : 7;
     }
 }

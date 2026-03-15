@@ -36,6 +36,15 @@ public class PrimaryProduct extends GenericEntity {
     @Column(name = "product_type")
     private String productType;
 
+    @Column(name = "stock_entry_date")
+    private LocalDate stockEntryDate;
+
+    @Column(name = "storage_type", length = 30)
+    private String storageType;
+
+    @Column(name = "max_storage_days")
+    private Integer maxStorageDays;
+
     @Column(name = "image_url", length = 512)
     private String imageUrl;
 

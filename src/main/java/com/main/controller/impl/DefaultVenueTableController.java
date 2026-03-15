@@ -6,6 +6,7 @@ import com.main.infrastructure.generic.model.dto.ResponseDTO;
 import com.main.model.dto.request.VenueTableMergeRequestDTO;
 import com.main.model.dto.request.VenueTableRequestDTO;
 import com.main.model.dto.request.VenueTableSplitRequestDTO;
+import com.main.model.dto.request.VenueTableStatusRequestDTO;
 import com.main.model.dto.response.VenueTableResponseDTO;
 import com.main.service.VenueTableService;
 import com.main.utils.constants.MessageCommonsConstants;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -67,5 +69,10 @@ public class DefaultVenueTableController implements VenueTableController {
     @PostMapping("/merge")
     public ResponseEntity<ResponseDTO<VenueTableResponseDTO>> merge(@RequestBody @Valid VenueTableMergeRequestDTO request) {
         return ControllerResponseHelper.ok(service.merge(request), MessageCommonsConstants.UPDATE_SUCCESS.getValue());
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ResponseDTO<VenueTableResponseDTO>> setStatus(@PathVariable UUID id, @RequestBody @Valid VenueTableStatusRequestDTO request) {
+        return ControllerResponseHelper.ok(service.setStatus(id, request), MessageCommonsConstants.UPDATE_SUCCESS.getValue());
     }
 }

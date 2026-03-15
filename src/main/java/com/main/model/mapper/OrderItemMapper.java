@@ -13,6 +13,11 @@ import org.mapstruct.MappingTarget;
 public interface OrderItemMapper extends GenericMapper<OrderItem, OrderItemRequestDTO, OrderItemResponseDTO> {
 
     @Override
+    @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "productName", source = "product.name")
+    OrderItemResponseDTO toResponse(OrderItem entity);
+
+    @Override
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     void updateEntity(OrderItemRequestDTO request, @MappingTarget OrderItem orderItem);

@@ -14,5 +14,6 @@ public class CompanyResponseDTO extends GenericDTO {
     private String whatsapp;
     private boolean active;
     private Integer maxWaiters;
+    private Integer stockExpiringDays;
     private boolean canOperate;
 }

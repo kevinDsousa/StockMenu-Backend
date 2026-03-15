@@ -16,6 +16,8 @@ public class OrderResponseDTO extends GenericDTO {
     private UUID companyId;
     private UUID tableId;
     private Integer tableNumber;
+    private UUID createdByUserId;
+    private String createdByUserName;
     private OrderType type;
     private boolean invoiced;
     private String customerName;

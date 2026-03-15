@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.main.model.dto.request.VenueTableMergeRequestDTO;
 import com.main.model.dto.request.VenueTableRequestDTO;
 import com.main.model.dto.request.VenueTableSplitRequestDTO;
+import com.main.model.dto.request.VenueTableStatusRequestDTO;
 
 import jakarta.validation.Valid;
 import java.util.List;
@@ -41,4 +42,7 @@ public interface VenueTableController {
 
     @Operation(summary = "Merge multiple tables into one", responses = { @ApiResponse(responseCode = "200", description = "Success.") })
     ResponseEntity<ResponseDTO<VenueTableResponseDTO>> merge(@RequestBody @Valid VenueTableMergeRequestDTO request);
+
+    @Operation(summary = "Update table status (e.g. FREE for realizar cobrança)", responses = { @ApiResponse(responseCode = "200", description = "Success.") })
+    ResponseEntity<ResponseDTO<VenueTableResponseDTO>> setStatus(@PathVariable UUID id, @RequestBody @Valid VenueTableStatusRequestDTO request);
 }

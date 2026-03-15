@@ -16,6 +16,7 @@ import com.main.service.PrimaryProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +49,9 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
         Company company = companyRepository.findById(request.companyId())
                 .orElseThrow(() -> new BusinessRuleException("Empresa não encontrada"));
         entity.setCompany(company);
+        if (entity.getStockEntryDate() == null) {
+            entity.setStockEntryDate(LocalDate.now());
+        }
         if (request.image() != null && request.image().length > 0) {
             String context = request.companyId() + "/primary-products";
             String key = imageService.uploadImageBytes(request.image(),
@@ -56,7 +60,9 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
             entity.setImageUrl(key);
         }
         PrimaryProduct saved = repository.save(entity);
-        return enrichWithImageUrl(mapper.toResponse(saved));
+        PrimaryProductResponseDTO response = mapper.toResponse(saved);
+        enrichWithStockFlags(saved, response, company.getStockExpiringDaysOrDefault());
+        return enrichWithImageUrl(response);
     }
 
     @Override
@@ -80,20 +86,32 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
             entity.setImageUrl(key);
         }
         PrimaryProduct saved = repository.save(entity);
-        return enrichWithImageUrl(mapper.toResponse(saved));
+        PrimaryProductResponseDTO response = mapper.toResponse(saved);
+        enrichWithStockFlags(saved, response, company.getStockExpiringDaysOrDefault());
+        return enrichWithImageUrl(response);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PrimaryProductResponseDTO findById(UUID id) {
-        PrimaryProduct entity = repository.findById(id).orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
+        PrimaryProduct entity = ((PrimaryProductRepository) repository).findByIdWithCompany(id)
+                .orElseThrow(() -> new BusinessRuleException("Registro não encontrado"));
         authorizationService.requireCompanyAccess(entity.getCompany().getId());
-        return enrichWithImageUrl(mapper.toResponse(entity));
+        PrimaryProductResponseDTO response = mapper.toResponse(entity);
+        int days = entity.getCompany().getStockExpiringDaysOrDefault();
+        enrichWithStockFlags(entity, response, days);
+        return enrichWithImageUrl(response);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PrimaryProductResponseDTO> findAll() {
-        return super.findAll().stream()
-                .map(this::enrichWithImageUrl)
+        return repository.findAll().stream()
+                .map(entity -> {
+                    PrimaryProductResponseDTO response = mapper.toResponse(entity);
+                    enrichWithStockFlags(entity, response, 7);
+                    return enrichWithImageUrl(response);
+                })
                 .toList();
     }
 
@@ -105,11 +123,26 @@ public class DefaultPrimaryProductService extends DefaultGenericService<PrimaryP
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PrimaryProductResponseDTO> findByCompanyId(UUID companyId) {
         authorizationService.requireCompanyAccess(companyId);
+        int stockExpiringDays = companyRepository.findById(companyId)
+                .map(Company::getStockExpiringDaysOrDefault)
+                .orElse(7);
         return ((PrimaryProductRepository) repository).findByCompany_Id(companyId).stream()
-                .map(e -> enrichWithImageUrl(mapper.toResponse(e)))
+                .map(entity -> {
+                    PrimaryProductResponseDTO response = mapper.toResponse(entity);
+                    enrichWithStockFlags(entity, response, stockExpiringDays);
+                    return enrichWithImageUrl(response);
+                })
                 .toList();
+    }
+
+    private void enrichWithStockFlags(PrimaryProduct entity, PrimaryProductResponseDTO response, int stockExpiringDays) {
+        if (entity == null || response == null) return;
+        response.setStockLow(entity.isStockLow());
+        response.setExpired(entity.isExpired());
+        response.setExpiringSoon(entity.isExpiringSoon(stockExpiringDays));
     }
 
     private PrimaryProductResponseDTO enrichWithImageUrl(PrimaryProductResponseDTO response) {

@@ -25,6 +25,9 @@ public record CompanyRequestDTO(
         String whatsapp,
 
         @Min(value = 0, message = "Max waiters cannot be negative")
-        Integer maxWaiters
+        Integer maxWaiters,
+
+        @Min(value = 1, message = "Stock expiring days must be at least 1")
+        Integer stockExpiringDays
 ) {
 }
