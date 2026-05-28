@@ -56,7 +56,8 @@ class DefaultCompanyServiceTest {
                     "Corporate",
                     "12345678901234",
                     "(85)99928-7198",
-                    10
+                    10,
+                    7
             );
             Company entity = new Company();
             entity.setId(COMPANY_ID);
@@ -81,7 +82,7 @@ class DefaultCompanyServiceTest {
         @Test
         @DisplayName("deve lançar quando registro não encontrado")
         void deveLancarQuandoNaoEncontrado() {
-            when(repository.findById(COMPANY_ID)).thenReturn(Optional.empty());
+            when(repository.findByIdWithSubscriptions(COMPANY_ID)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> service.findById(COMPANY_ID))
                     .isInstanceOf(BusinessRuleException.class)
@@ -97,7 +98,7 @@ class DefaultCompanyServiceTest {
             entity.setId(COMPANY_ID);
             CompanyResponseDTO response = new CompanyResponseDTO();
 
-            when(repository.findById(COMPANY_ID)).thenReturn(Optional.of(entity));
+            when(repository.findByIdWithSubscriptions(COMPANY_ID)).thenReturn(Optional.of(entity));
             when(mapper.toResponse(entity)).thenReturn(response);
 
             CompanyResponseDTO result = service.findById(COMPANY_ID);
@@ -119,7 +120,8 @@ class DefaultCompanyServiceTest {
                     "Corporate",
                     "12345678901234",
                     "(85)99928-7198",
-                    10
+                    10,
+                    7
             );
             Company entity = new Company();
             entity.setId(COMPANY_ID);
